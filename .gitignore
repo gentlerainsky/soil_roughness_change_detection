@@ -1,0 +1,6 @@
+.ipynb_checkpoints
+__pycache__
+tuwien-soil-roughness-04a0b908b35c.json
+*.pkl
+.DS_Store
+config.py
