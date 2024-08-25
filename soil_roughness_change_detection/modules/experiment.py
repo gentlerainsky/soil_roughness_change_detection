@@ -16,7 +16,7 @@ def run_experiment(df, tillage_df, interval_df, feature, outlier_detector, param
         true_positives, false_positives, false_negatives = evaluate_outliers(outlier_df, tillage_df)
         result = {
             'config': parameter_combination,
-            'results': calculate_result(true_positives, false_positives, false_negatives),   
+            'results': calculate_result(true_positives, false_positives, false_negatives),
         }
         output_outlier_df = outlier_df[outlier_df.id.isin([0, 1, 2, 3, 4])].copy()
         output_outlier_df['from_date'] = output_outlier_df['from_date'].dt.strftime('%Y-%m-%d')
@@ -32,6 +32,7 @@ def evaluate_outliers(outlier_df, tillage_df):
     test_vote_df = outlier_df[outlier_df.id.isin([0, 1, 2, 3, 4])].copy()
     test_vote_df['matched'] = False
     false_negatives = []
+    true_positives = 0
     for field_idx in range(5):
         field_df = test_vote_df[test_vote_df.id == field_idx]
         field_tillage_df = tillage_df.xs(field_idx, level=1)
@@ -39,13 +40,13 @@ def evaluate_outliers(outlier_df, tillage_df):
             check_df = field_df[(date >= field_df.from_date) & (date <= field_df.date)]
             if check_df.shape[0] > 0:
                 test_vote_df.loc[check_df.index, 'matched'] = True
+                true_positives += 1
             else:
                 false_negatives.append({
                     'date': date,
                     'field': field_idx
                 })
-    false_positives = int(test_vote_df.groupby('id').count()['date'].sum())
-    true_positives = int(test_vote_df['matched'].sum())
+    false_positives = int(test_vote_df[~test_vote_df['matched']].groupby('id').count()['date'].sum())
     false_negatives = len(false_negatives)
     return true_positives, false_positives, false_negatives
 
