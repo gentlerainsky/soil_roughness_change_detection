@@ -54,7 +54,7 @@ def calculate_backscatter_ratio(df):
     df['from_date'] = df['date'].shift(1) + pd.DateOffset(1)
     df['VV_ratio'] = VV / VV.shift(1)
     df['VH_ratio'] = VH / VH.shift(1)
-    df['VH_VV_ratio_diff'] = (VH / VV) - (VH.shift(1) - VV.shift(1))
+    df['VH_VV_ratio_diff'] = (VH / VV) - (VH.shift(1) / VV.shift(1))
     df = df.dropna()
     return df
 
